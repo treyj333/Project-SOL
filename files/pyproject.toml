@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "sol-ai-friend"
+version = "2.0.0"
+description = "SOL — Your Local AI Friend. Fully offline, runs on old hardware."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.8"
+dependencies = [
+    "pyttsx3",
+]
+
+[project.optional-dependencies]
+voice = ["vosk", "sounddevice", "numpy"]
+whisper = ["whisper-cpp-python"]
+piper = ["piper-tts"]
+llm = ["llama-cpp-python"]
+tui = ["textual>=0.40"]
+all = [
+    "sol-ai-friend[voice]",
+    "sol-ai-friend[whisper]",
+    "sol-ai-friend[piper]",
+    "sol-ai-friend[llm]",
+    "sol-ai-friend[tui]",
+]
+dev = ["pytest", "pytest-cov"]
+
+[project.scripts]
+sol = "sol.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

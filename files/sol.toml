@@ -1,0 +1,34 @@
+# SOL Configuration — edit this to customize your AI friend
+# See README.md for all options
+
+[general]
+mode = "cli"              # "cli" or "tui" (requires: pip install textual)
+voice_input = true
+voice_output = true
+
+[brain]
+backend = "auto"          # "auto", "gemini", "cloud", "ollama", "llm", "pattern"
+# gemini_api_key = ""     # Free key at aistudio.google.com — no credit card needed
+# gemini_model = "gemini-2.5-flash"
+ollama_model = "gemma3:4b"
+# ollama_url = "http://localhost:11434"
+# llm_model = "models/llm/tinyllama-1.1b-chat.Q4_K_M.gguf"
+# temperature = 0.7
+
+[voice]
+stt_backend = "auto"      # "auto", "vosk", "whisper"
+tts_backend = "auto"      # "auto", "pyttsx3", "piper"
+wake_word = false
+speech_rate = 140
+
+[memory]
+backend = "sqlite"        # "sqlite" or "json"
+
+[features]
+journal = true
+reminders = true
+notes = true
+
+[plugins]
+enabled = true
+directory = "plugins"

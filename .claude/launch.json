@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "SOL App (Direct)",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["sol.py"],
+      "cwd": "files"
+    },
+    {
+      "name": "SOL App (Module)",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "sol"],
+      "cwd": "files/src"
+    },
+    {
+      "name": "SOL Tests",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "pytest", "tests/", "-v"],
+      "cwd": "files"
+    },
+    {
+      "name": "SOL Setup",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["setup.sh"],
+      "cwd": "files"
+    }
+  ]
+}
