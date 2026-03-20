@@ -17,6 +17,8 @@ SOL is an AI companion that lives on your computer. It talks to you in a British
 
 - **SOL talks** — British male voice (Daniel) via macOS native TTS, zero dependencies
 - **SOL listens** — push-to-talk (press SPACE), mic stays off until you're ready
+- **Live model switching** — say "change model" mid-conversation to swap AI backends on the fly
+- **Startup brain display** — see which AI model is active the moment SOL boots
 - **One-line installer** — `bash install.sh` sets up everything automatically
 - **Maxed-out personality** — sarcastic, witty, opinionated. Challenges your thinking. Roasts you when you deserve it. Has your back when it counts.
 - **Google Gemini cloud brain** — enterprise-quality AI via free API (no credit card needed)
@@ -33,7 +35,8 @@ SOL is an AI companion that lives on your computer. It talks to you in a British
 
 - **Thinks** — powered by real AI (Gemini cloud or Ollama local), not just keyword matching
 - **Talks** — speaks out loud in a British accent via macOS native TTS
-- **Listens** — voice input via Vosk STT (or keyboard if you prefer)
+- **Listens** — push-to-talk voice input (press SPACE to speak, mic off otherwise)
+- **Switches brains** — say "change model" to swap between Gemini, Ollama, or local LLM mid-chat
 - **Has opinions** — challenges assumptions, plays devil's advocate, gives blunt advice
 - **Remembers** everything about you — facts, preferences, moods, conversation history
 - **Reads the room** — sarcastic when things are light, genuine when things are heavy
@@ -50,6 +53,8 @@ bash install.sh
 ```
 
 This automatically installs all dependencies, downloads the speech model, and checks your AI backends. When it's done, just run `python3 sol.py`.
+
+See `SETUP GUIDE.txt` in the project root for detailed step-by-step instructions.
 
 ### Manual Setup
 
@@ -103,9 +108,12 @@ python3 sol.py
 
 You should see:
 ```
-Brain: Gemini cloud (gemini-2.5-flash)    # or Ollama mode
-Voice input: Vosk (ready)
-Voice output: macOS say (Daniel)
+    Brain: Gemini cloud (gemini-2.5-flash)
+    Say "change model" to switch AI backends
+
+    Voice input: Vosk (ready)
+    Push-to-talk: ON (press SPACE to speak)
+    Voice output: macOS say (Daniel)
 ```
 
 ### Optional Extras
@@ -166,6 +174,8 @@ notes = true
 | **Pattern matching** | Basic | Instant | Nothing |
 
 SOL tries each in order and uses the best available. Set `backend = "ollama"` in `sol.toml` to force a specific mode.
+
+**Switch models on the fly:** Say "change model", "switch brain", or "switch AI" during a conversation. SOL lists all available backends and lets you pick one — no restart needed.
 
 ---
 
@@ -279,28 +289,18 @@ SOL is the friend who's brilliantly sarcastic but always has your back:
 
 ---
 
-## Project Structure
+## Voice Commands
 
-```
-files/
-  sol.py                    # Entry point (backward compatible)
-  install.sh                # One-line installer
-  sol.toml                  # Configuration
-  .env                      # API keys (gitignored)
-  pyproject.toml            # Package metadata
-  src/sol/                  # Main package
-    app.py                  # Application orchestrator
-    config.py               # Config loading
-    brain/                  # Gemini, Ollama, llama-cpp, pattern brains
-    memory/                 # SQLite + JSON stores
-    voice/                  # macOS say, Vosk, Whisper, pyttsx3, Piper
-    ui/                     # CLI + Textual TUI
-    features/               # Journal, reminders, notes, export
-    plugins/                # Plugin system
-  tests/                    # 126 tests
-  plugins/                  # User plugins directory
-  models/                   # Voice + LLM models
-```
+| Command | What It Does |
+|---------|-------------|
+| "change model" | Switch AI backends (Gemini, Ollama, etc.) |
+| "switch brain" | Same as above |
+| "switch AI" | Same as above |
+| "let's journal" | Start guided daily reflection |
+| "remind me to..." | Set a reminder |
+| "what do you remember?" | Recall stored facts about you |
+| "tell me a joke" | SOL tells a joke |
+| "goodbye" | End session (saves memory) |
 
 ---
 
@@ -311,15 +311,41 @@ files/
 | `SPACE` | Push-to-talk (press to start recording) |
 | `ENTER` | Also triggers recording |
 | `Ctrl+C` | Quit (SOL saves memory first) |
-| Say "goodbye" | Graceful exit |
 | `Ctrl+Q` | Quit (TUI mode) |
+
+---
+
+## Project Structure
+
+```
+Project-SOL/
+  SETUP GUIDE.txt             # Step-by-step setup instructions
+  files/
+    sol.py                    # Entry point
+    install.sh                # One-line installer
+    sol.toml                  # Configuration
+    .env                      # API keys (gitignored)
+    pyproject.toml            # Package metadata
+    src/sol/                  # Main package
+      app.py                  # Application orchestrator
+      config.py               # Config loading
+      brain/                  # Gemini, Ollama, llama-cpp, pattern brains
+      memory/                 # SQLite + JSON stores
+      voice/                  # macOS say, Vosk, Whisper, push-to-talk
+      ui/                     # CLI + Textual TUI
+      features/               # Journal, reminders, notes, export
+      plugins/                # Plugin system
+    tests/                    # 134 tests
+    plugins/                  # User plugins directory
+    models/                   # Voice + LLM models
+```
 
 ---
 
 ## Troubleshooting
 
 **SOL says "Brain: pattern matching mode"**
-No AI backend is available. Install Ollama (`ollama.com`) and pull a model (`ollama pull gemma3:4b`), or add a Gemini API key to `.env`.
+No AI backend is available. Install Ollama (`ollama.com`) and pull a model (`ollama pull gemma3:4b`), or add a Gemini API key to `.env`. Or say "change model" to see what's available.
 
 **"No voice output available"**
 On macOS, this shouldn't happen — the `say` command is built in. On Linux/Windows, install pyttsx3: `pip install pyttsx3`.
