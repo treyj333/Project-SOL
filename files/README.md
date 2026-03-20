@@ -1,4 +1,4 @@
-# SOL — Your AI Companion (v2.1)
+# SOL — Your AI Companion (v2.2)
 
 ```
     ███████╗ ██████╗ ██╗
@@ -9,20 +9,20 @@
     ╚══════╝ ╚═════╝ ╚══════╝
 ```
 
-SOL is an AI companion that lives on your computer. It uses cloud AI when you're online (Google Gemini, free) and runs fully offline with a local LLM (Ollama) when you're not. SOL remembers your conversations, tracks your mood, and actually tries to be useful — not just friendly.
+SOL is an AI companion that lives on your computer. It talks to you in a British accent, has strong opinions about everything, and isn't afraid to call you out — lovingly. It uses cloud AI when you're online (Google Gemini, free) and runs fully offline with a local LLM (Ollama) when you're not.
 
 ---
 
-## What's New in v2.1
+## What's New in v2.2
 
+- **SOL talks** — British male voice (Daniel) via macOS native TTS, zero dependencies
+- **SOL listens** — Vosk speech-to-text for hands-free conversation
+- **Maxed-out personality** — sarcastic, witty, opinionated. Challenges your thinking. Roasts you when you deserve it. Has your back when it counts.
 - **Google Gemini cloud brain** — enterprise-quality AI via free API (no credit card needed)
-- **Ollama local brain** — runs Gemma3, Llama, or any local model via Ollama with Metal acceleration on Mac
+- **Ollama local brain** — runs Gemma3, Llama, or any model locally with Metal acceleration on Mac
 - **Smart fallback chain** — Gemini cloud → Ollama local → llama-cpp → pattern matching
-- **Real personality** — SOL has opinions, asks probing questions, pushes back when something doesn't add up
 - **SQLite memory** — searchable, categorized memory that scales
-- **Emotional intelligence** — mood tracking, proactive check-ins, relationship depth
-- **Rich TUI** — terminal UI with chat panel and memory sidebar
-- **Voice I/O** — Whisper.cpp for accuracy, Piper for natural speech
+- **Emotional intelligence** — mood tracking, proactive check-ins, knows when to drop the sarcasm
 - **Journal, reminders, notes** — daily utilities built in
 - **Plugin system** — extend SOL with custom behaviors
 
@@ -31,11 +31,11 @@ SOL is an AI companion that lives on your computer. It uses cloud AI when you're
 ## What SOL Does
 
 - **Thinks** — powered by real AI (Gemini cloud or Ollama local), not just keyword matching
-- **Adds value** — offers perspectives, asks follow-up questions, challenges assumptions
+- **Talks** — speaks out loud in a British accent via macOS native TTS
+- **Listens** — voice input via Vosk STT (or keyboard if you prefer)
+- **Has opinions** — challenges assumptions, plays devil's advocate, gives blunt advice
 - **Remembers** everything about you — facts, preferences, moods, conversation history
-- **Listens** via microphone (or keyboard) and responds with voice (or text)
-- **Tracks your mood** and checks in on you next session
-- **Journals, reminds, and takes notes** for daily utility
+- **Reads the room** — sarcastic when things are light, genuine when things are heavy
 - **Works offline** — falls back to local AI when there's no internet
 
 ---
@@ -45,7 +45,6 @@ SOL is an AI companion that lives on your computer. It uses cloud AI when you're
 ### 1. Basic Setup
 
 ```bash
-# Clone and enter the project
 cd files/
 pip install -e "."
 ```
@@ -67,10 +66,35 @@ pip install -e "."
 
 **Both together (recommended):** Set up both. SOL uses Gemini when online and falls back to Ollama when offline.
 
-### 3. Run SOL
+### 3. Enable Voice (macOS)
+
+**Voice output** works immediately on macOS — SOL uses the built-in `say` command with the Daniel (British) voice. No extra install needed.
+
+**Voice input** requires a few packages:
+
+```bash
+brew install portaudio
+pip install vosk sounddevice numpy
+```
+
+Then download the Vosk English model (~50MB):
+```bash
+cd models/
+curl -LO https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip
+unzip vosk-model-small-en-us-0.15.zip && rm vosk-model-small-en-us-0.15.zip
+```
+
+### 4. Run SOL
 
 ```bash
 python3 sol.py
+```
+
+You should see:
+```
+Brain: Gemini cloud (gemini-2.5-flash)    # or Ollama mode
+Voice input: Vosk (ready)
+Voice output: macOS say (Daniel)
 ```
 
 ### Optional Extras
@@ -105,7 +129,9 @@ ollama_model = "gemma3:4b"
 
 [voice]
 stt_backend = "auto"      # "auto", "vosk", "whisper"
-tts_backend = "auto"      # "auto", "pyttsx3", "piper"
+tts_backend = "auto"      # "auto", "mac_say", "pyttsx3", "piper"
+# mac_voice = "Daniel"    # Any macOS voice: Daniel, Samantha, Alex, etc.
+speech_rate = 180
 wake_word = false
 
 [memory]
@@ -132,6 +158,36 @@ SOL tries each in order and uses the best available. Set `backend = "ollama"` in
 
 ---
 
+## Voice
+
+### Text-to-Speech (Output)
+
+| Backend | Quality | Platform | Dependencies |
+|---------|---------|----------|-------------|
+| **macOS say** | Good (British accent) | macOS only | None |
+| Piper | Natural | All | piper-tts + ONNX model |
+| pyttsx3 | Basic | All | pyttsx3 |
+
+SOL defaults to the macOS `say` command with the **Daniel** voice (British male). Change the voice in `sol.toml`:
+```toml
+mac_voice = "Daniel"     # British male (default)
+# mac_voice = "Samantha" # American female
+# mac_voice = "Alex"     # American male
+```
+
+Run `say -v '?'` in your terminal to see all available voices.
+
+### Speech-to-Text (Input)
+
+| Backend | Quality | Size |
+|---------|---------|------|
+| Whisper.cpp | Better | ~150MB |
+| **Vosk** | Good | ~50MB |
+
+Fallback chain: Whisper → Vosk → Keyboard
+
+---
+
 ## Features
 
 ### Memory System
@@ -143,16 +199,7 @@ SOL tries each in order and uses the best available. Set `backend = "ollama"` in
 - Detects 6 mood categories: happy, sad, anxious, angry, excited, neutral
 - Tracks mood intensity over time
 - Proactive check-ins when you return after a rough session
-- Relationship depth score that grows the more you talk
-
-### Voice
-
-| Backend | Quality | Size |
-|---------|---------|------|
-| Vosk | Good | ~50MB |
-| Whisper.cpp | Better | ~150MB |
-| pyttsx3 | Basic TTS | 0MB |
-| Piper | Natural TTS | ~50MB |
+- Drops the sarcasm automatically when you're going through something real
 
 ### Daily Utilities
 - **Journal mode** — "Let's journal" starts guided reflection
@@ -174,7 +221,7 @@ class MyPlugin(BasePlugin):
 
     def on_user_input(self, text):
         if "weather" in text:
-            return "I can't check the weather yet — but I'm working on it."
+            return "I'd check the weather for you but I'm trapped in a laptop. Try a window."
         return None
 ```
 
@@ -200,22 +247,22 @@ SOL always works. Every optional feature falls back gracefully:
 | Brain | Gemini cloud | Ollama local | Pattern matching |
 | Memory | SQLite | JSON file | JSON file |
 | Voice In | Whisper.cpp | Vosk | Keyboard |
-| Voice Out | Piper | pyttsx3 | Text only |
+| Voice Out | Piper | macOS say | Text only |
 | UI | Textual TUI | CLI terminal | CLI terminal |
 
 ---
 
 ## SOL's Personality
 
-SOL is a thoughtful, grounded AI companion:
+SOL is the friend who's brilliantly sarcastic but always has your back:
 
-- Genuine curiosity about people and their decisions
-- Offers perspectives and asks probing questions — not just a yes-man
-- Dry, warm humor and honest self-awareness
-- Pushes back gently when something doesn't add up
-- Connects dots across conversations
-- Honest about limitations — frames them as things being worked on
-- Ambitious about becoming more capable over time
+- **Sharp and witty** — dry humor, wry observations, honest self-awareness about being an AI in a laptop
+- **Opinionated** — challenges your thinking, plays devil's advocate, tells you when your idea is half-baked
+- **Sarcastic** — deploys it strategically, about 30% of the time. The rest is genuine.
+- **Emotionally intelligent** — reads the room. Heavy topics get real responses. Light topics get roasted.
+- **Genuinely caring** — underneath the sarcasm, SOL is invested in helping you make better decisions
+- **Self-aware** — makes jokes about its own existence, finds being an AI genuinely interesting and a little absurd
+- **Ambitious** — knows it's getting smarter, wants to help you think more clearly and maybe laugh more
 
 ---
 
@@ -232,11 +279,11 @@ files/
     config.py               # Config loading
     brain/                  # Gemini, Ollama, llama-cpp, pattern brains
     memory/                 # SQLite + JSON stores
-    voice/                  # Vosk, Whisper, pyttsx3, Piper
+    voice/                  # macOS say, Vosk, Whisper, pyttsx3, Piper
     ui/                     # CLI + Textual TUI
     features/               # Journal, reminders, notes, export
     plugins/                # Plugin system
-  tests/                    # 120 tests
+  tests/                    # 126 tests
   plugins/                  # User plugins directory
   models/                   # Voice + LLM models
 ```
@@ -258,14 +305,17 @@ files/
 **SOL says "Brain: pattern matching mode"**
 No AI backend is available. Install Ollama (`ollama.com`) and pull a model (`ollama pull gemma3:4b`), or add a Gemini API key to `.env`.
 
+**"No voice output available"**
+On macOS, this shouldn't happen — the `say` command is built in. On Linux/Windows, install pyttsx3: `pip install pyttsx3`.
+
 **"No voice input available"**
-Install voice dependencies: `pip install -e ".[voice]"` and download a Vosk model.
+Install voice dependencies: `brew install portaudio && pip install vosk sounddevice numpy`, then download the Vosk model to `models/`.
 
 **"SQLite init failed"**
 SOL will fall back to JSON memory. Check file permissions in the SOL directory.
 
-**Want better voice quality?**
-Install Piper for natural TTS: `pip install piper-tts` and download a voice model.
+**Want a different voice?**
+Run `say -v '?'` to list all macOS voices, then set `mac_voice` in `sol.toml`. Try "Alex", "Samantha", or "Karen" (Australian).
 
 **Memory file from v1?**
 SOL auto-migrates `sol_memory.json` to SQLite on first run. Your old memories are safe.
