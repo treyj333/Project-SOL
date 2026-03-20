@@ -122,36 +122,51 @@ class SolApp:
 
         stt = get(self.config, "voice.stt_backend", "auto")
 
+        engine = None
+
         # Try Whisper first
         if stt in ("whisper", "auto"):
             try:
                 from sol.voice.whisper_stt import WhisperSTT
                 model_path = resolve_path(self.config, get(self.config, "voice.whisper_model", ""))
                 if os.path.exists(model_path):
-                    engine = WhisperSTT(model_path)
-                    if engine.is_available():
+                    e = WhisperSTT(model_path)
+                    if e.is_available():
+                        engine = e
                         self.ui.display_message("Voice input: Whisper (ready)", "system")
-                        return engine
             except ImportError:
                 pass
 
         # Try Vosk
-        if stt in ("vosk", "auto"):
+        if engine is None and stt in ("vosk", "auto"):
             try:
                 from sol.voice.vosk_stt import VoskSTT
                 model_path = resolve_path(self.config, get(self.config, "voice.vosk_model", ""))
                 if not os.path.isdir(model_path):
                     model_path = VoskSTT.find_model(self.base_dir)
                 if model_path:
-                    engine = VoskSTT(model_path)
-                    if engine.is_available():
+                    e = VoskSTT(model_path)
+                    if e.is_available():
+                        engine = e
                         self.ui.display_message("Voice input: Vosk (ready)", "system")
-                        return engine
             except ImportError:
                 pass
 
-        self.ui.display_message("No voice input available. Using keyboard.", "dim")
-        return None
+        if engine is None:
+            self.ui.display_message("No voice input available. Using keyboard.", "dim")
+            return None
+
+        # Wrap with push-to-talk so mic is off until space is pressed
+        try:
+            from sol.voice.push_to_talk import PushToTalk
+            ptt = PushToTalk(engine)
+            if ptt.is_available():
+                self.ui.display_message("Push-to-talk: ON (press SPACE to speak)", "system")
+                return ptt
+        except ImportError:
+            pass
+
+        return engine
 
     def _init_voice_output(self):
         if not get(self.config, "general.voice_output", True):
@@ -225,7 +240,7 @@ class SolApp:
     def listen(self) -> str:
         """Listen for voice input, or fall back to keyboard."""
         if self.voice_in:
-            self.ui.display_message("[ listening... speak now ]", "dim")
+            self.ui.display_message("[ Press SPACE to talk... ]", "dim")
             text = self.voice_in.listen()
             if text:
                 return text

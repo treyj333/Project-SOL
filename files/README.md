@@ -16,7 +16,8 @@ SOL is an AI companion that lives on your computer. It talks to you in a British
 ## What's New in v2.2
 
 - **SOL talks** — British male voice (Daniel) via macOS native TTS, zero dependencies
-- **SOL listens** — Vosk speech-to-text for hands-free conversation
+- **SOL listens** — push-to-talk (press SPACE), mic stays off until you're ready
+- **One-line installer** — `bash install.sh` sets up everything automatically
 - **Maxed-out personality** — sarcastic, witty, opinionated. Challenges your thinking. Roasts you when you deserve it. Has your back when it counts.
 - **Google Gemini cloud brain** — enterprise-quality AI via free API (no credit card needed)
 - **Ollama local brain** — runs Gemma3, Llama, or any model locally with Metal acceleration on Mac
@@ -42,7 +43,17 @@ SOL is an AI companion that lives on your computer. It talks to you in a British
 
 ## Quick Setup
 
-### 1. Basic Setup
+### One-Line Install (recommended)
+
+```bash
+bash install.sh
+```
+
+This automatically installs all dependencies, downloads the speech model, and checks your AI backends. When it's done, just run `python3 sol.py`.
+
+### Manual Setup
+
+#### 1. Basic Setup
 
 ```bash
 cd files/
@@ -186,6 +197,8 @@ Run `say -v '?'` in your terminal to see all available voices.
 
 Fallback chain: Whisper → Vosk → Keyboard
 
+**Push-to-talk:** The mic stays OFF until you press SPACE. Once pressed, SOL records until you stop talking (silence detection), processes your speech, and turns the mic off again. No always-on listening.
+
 ---
 
 ## Features
@@ -271,6 +284,7 @@ SOL is the friend who's brilliantly sarcastic but always has your back:
 ```
 files/
   sol.py                    # Entry point (backward compatible)
+  install.sh                # One-line installer
   sol.toml                  # Configuration
   .env                      # API keys (gitignored)
   pyproject.toml            # Package metadata
@@ -294,6 +308,8 @@ files/
 
 | Key | Action |
 |-----|--------|
+| `SPACE` | Push-to-talk (press to start recording) |
+| `ENTER` | Also triggers recording |
 | `Ctrl+C` | Quit (SOL saves memory first) |
 | Say "goodbye" | Graceful exit |
 | `Ctrl+Q` | Quit (TUI mode) |
