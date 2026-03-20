@@ -139,9 +139,11 @@ class TuiUI(UIBase):
         if self.app.is_running:
             self.app.call_from_thread(self.app.add_message, text, style)
 
-    def display_banner(self) -> None:
-        self.display_message("SOL v2.0 — Your Local AI Friend", "system")
-        self.display_message("No internet. No cloud. Just SOL and you.", "dim")
+    def display_banner(self, brain_name: str = "") -> None:
+        self.display_message("SOL v2.2 — Your AI Companion", "system")
+        if brain_name:
+            self.display_message(f"Brain: {brain_name}  •  Say \"change model\" to switch", "dim")
+        self.display_message("Smart. Sarcastic. British.", "dim")
 
     def display_status(self, metadata: Dict[str, Any]) -> None:
         if self.app.is_running:

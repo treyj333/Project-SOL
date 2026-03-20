@@ -28,6 +28,7 @@ class SolApp:
         self.config = load_config(base_dir)
         self.ui: UIBase = self._init_ui()
         self.memory: MemoryStore = self._init_memory()
+        self.brain_name = "pattern matching"
         self.brain: BaseBrain = self._init_brain()
         self.voice_in = self._init_voice_input()
         self.voice_out = self._init_voice_output()
@@ -77,7 +78,7 @@ class SolApp:
                 brain = GeminiBrain(self.memory, self.config)
                 if brain.is_available():
                     model = get(self.config, "brain.gemini_model", "gemini-2.5-flash")
-                    self.ui.display_message(f"Brain: Gemini cloud ({model})", "system")
+                    self.brain_name = f"Gemini cloud ({model})"
                     return brain
             except ImportError:
                 pass
@@ -91,7 +92,7 @@ class SolApp:
                 brain = OllamaBrain(self.memory, self.config)
                 if brain.is_available():
                     model = get(self.config, "brain.ollama_model", "gemma3:4b")
-                    self.ui.display_message(f"Brain: Ollama mode ({model})", "system")
+                    self.brain_name = f"Ollama local ({model})"
                     return brain
             except ImportError:
                 pass
@@ -106,14 +107,14 @@ class SolApp:
                 if os.path.exists(model_path):
                     brain = LLMBrain(model_path, self.memory, self.config)
                     if brain.is_available():
-                        self.ui.display_message("Brain: LLM mode", "system")
+                        self.brain_name = "Local LLM (GGUF)"
                         return brain
             except ImportError:
                 pass
             except Exception as e:
                 self.ui.display_message(f"LLM init failed: {e}", "dim")
 
-        self.ui.display_message("Brain: pattern matching mode", "system")
+        self.brain_name = "Pattern matching"
         return PatternBrain(self.memory)
 
     def _init_voice_input(self):
@@ -302,9 +303,135 @@ class SolApp:
 
         return greeting
 
+    def _get_available_brains(self) -> list:
+        """Return list of (key, label) for all available brain backends."""
+        available = []
+
+        # Check Gemini
+        try:
+            from sol.brain.gemini_brain import GeminiBrain
+            brain = GeminiBrain(self.memory, self.config)
+            if brain.is_available():
+                model = get(self.config, "brain.gemini_model", "gemini-2.5-flash")
+                available.append(("gemini", f"Gemini cloud ({model})"))
+        except (ImportError, Exception):
+            pass
+
+        # Check Ollama
+        try:
+            from sol.brain.ollama_brain import OllamaBrain
+            brain = OllamaBrain(self.memory, self.config)
+            if brain.is_available():
+                model = get(self.config, "brain.ollama_model", "gemma3:4b")
+                available.append(("ollama", f"Ollama local ({model})"))
+        except (ImportError, Exception):
+            pass
+
+        # Check llama-cpp
+        try:
+            from sol.brain.llm_brain import LLMBrain
+            model_path = resolve_path(self.config, get(self.config, "brain.llm_model", ""))
+            if os.path.exists(model_path):
+                brain = LLMBrain(model_path, self.memory, self.config)
+                if brain.is_available():
+                    available.append(("llm", "Local LLM (GGUF)"))
+        except (ImportError, Exception):
+            pass
+
+        # Pattern matching is always available
+        available.append(("pattern", "Pattern matching"))
+
+        return available
+
+    def _switch_brain(self, key: str) -> bool:
+        """Switch to a specific brain backend. Returns True on success."""
+        try:
+            if key == "gemini":
+                from sol.brain.gemini_brain import GeminiBrain
+                brain = GeminiBrain(self.memory, self.config)
+                if brain.is_available():
+                    self.brain = brain
+                    model = get(self.config, "brain.gemini_model", "gemini-2.5-flash")
+                    self.brain_name = f"Gemini cloud ({model})"
+                    return True
+            elif key == "ollama":
+                from sol.brain.ollama_brain import OllamaBrain
+                brain = OllamaBrain(self.memory, self.config)
+                if brain.is_available():
+                    self.brain = brain
+                    model = get(self.config, "brain.ollama_model", "gemma3:4b")
+                    self.brain_name = f"Ollama local ({model})"
+                    return True
+            elif key == "llm":
+                from sol.brain.llm_brain import LLMBrain
+                model_path = resolve_path(self.config, get(self.config, "brain.llm_model", ""))
+                brain = LLMBrain(model_path, self.memory, self.config)
+                if brain.is_available():
+                    self.brain = brain
+                    self.brain_name = "Local LLM (GGUF)"
+                    return True
+            elif key == "pattern":
+                self.brain = PatternBrain(self.memory)
+                self.brain_name = "Pattern matching"
+                return True
+        except (ImportError, Exception):
+            pass
+        return False
+
+    def _handle_model_switch(self) -> str:
+        """Interactive model switch — returns SOL's response."""
+        available = self._get_available_brains()
+
+        if len(available) <= 1:
+            return "You've only got one brain available right now. Can't exactly downgrade from here."
+
+        # Build the menu
+        lines = ["Right then, here's what I've got:"]
+        for i, (key, label) in enumerate(available, 1):
+            marker = " (current)" if label == self.brain_name else ""
+            lines.append(f"  {i}. {label}{marker}")
+        lines.append("")
+        lines.append("Say the number or name of the one you want.")
+
+        menu_text = "\n".join(lines)
+        self.ui.display_message(menu_text, "sol")
+        self.speak("Which brain do you want me to use? Say the number.")
+        print()
+
+        # Get user choice
+        choice_text = self.listen()
+        if not choice_text:
+            return "Nothing? Alright, keeping the current brain."
+
+        if self.voice_in:
+            self.ui.display_message(choice_text, "you")
+            print()
+
+        choice = choice_text.lower().strip()
+
+        # Match by number
+        for i, (key, label) in enumerate(available, 1):
+            if choice == str(i) or choice in ("one", "two", "three", "four")[i-1:i]:
+                if label == self.brain_name:
+                    return f"Already running {label}. No change needed."
+                if self._switch_brain(key):
+                    return f"Done. Switched to {self.brain_name}. Let's see if I'm smarter now."
+                return f"Couldn't switch to {label}. Something went wrong."
+
+        # Match by keyword
+        for key, label in available:
+            if key in choice or any(w in choice for w in label.lower().split()):
+                if label == self.brain_name:
+                    return f"Already running {label}. No change needed."
+                if self._switch_brain(key):
+                    return f"Done. Switched to {self.brain_name}. Let's see if I'm smarter now."
+                return f"Couldn't switch to {label}. Something went wrong."
+
+        return "Didn't catch which one you meant. Try again — say 'change model' whenever."
+
     def run(self):
         """Main application loop."""
-        self.ui.display_banner()
+        self.ui.display_banner(brain_name=self.brain_name)
 
         # Increment conversation count
         self.memory.increment_conversations()
@@ -335,6 +462,18 @@ class SolApp:
                 if self.voice_in:
                     self.ui.display_message(user_text, "you")
                 print()
+
+                # Check for model switch command
+                lower = user_text.lower()
+                if any(phrase in lower for phrase in (
+                    "change model", "switch model", "change brain",
+                    "switch brain", "change ai", "switch ai",
+                )):
+                    response = self._handle_model_switch()
+                    self.ui.display_message(response, "sol")
+                    self.speak(response)
+                    print()
+                    continue
 
                 # Run plugin on_user_input hooks
                 plugin_override = None

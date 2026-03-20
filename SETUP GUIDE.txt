@@ -1,0 +1,251 @@
+==============================================================
+  SOL — SETUP GUIDE
+  Get SOL running from scratch, step by step
+==============================================================
+
+
+WHAT YOU NEED BEFORE YOU START
+------------------------------
+- A Mac (macOS) or Linux computer
+- Internet connection (for downloading stuff)
+- About 15 minutes
+
+
+==============================================================
+STEP 1: INSTALL PYTHON (if you don't have it)
+==============================================================
+
+Check if you already have Python:
+  Open Terminal and type:
+
+    python3 --version
+
+  If you see "Python 3.9" or higher, you're good — skip to Step 2.
+
+If you DON'T have Python:
+  Go to: https://python.org/downloads
+  Download the latest version, run the installer, follow the prompts.
+  Done.
+
+
+==============================================================
+STEP 2: DOWNLOAD SOL FROM GITHUB
+==============================================================
+
+Option A — If you have git installed:
+
+  Open Terminal and type:
+
+    git clone https://github.com/treyj333/Project-SOL.git
+    cd Project-SOL
+
+Option B — If you DON'T have git:
+
+  1. Go to: https://github.com/treyj333/Project-SOL
+  2. Click the green "Code" button
+  3. Click "Download ZIP"
+  4. Unzip the folder wherever you want it
+  5. Open Terminal and navigate to that folder:
+
+       cd /path/to/Project-SOL
+
+
+==============================================================
+STEP 3: RUN THE INSTALLER (easiest way)
+==============================================================
+
+From the Project-SOL folder, type:
+
+    cd files
+    bash install.sh
+
+This does EVERYTHING for you:
+  - Installs all Python packages SOL needs
+  - Installs voice input dependencies (portaudio, vosk, etc.)
+  - Downloads the speech recognition model (~50MB)
+  - Checks if you have an AI backend ready
+  - Tells you exactly what's working and what's not
+
+When it finishes, you'll see "SOL is ready!" and you can
+skip straight to Step 6.
+
+If the installer worked, SKIP Steps 4 and 5.
+
+
+==============================================================
+STEP 4: MANUAL INSTALL (only if install.sh didn't work)
+==============================================================
+
+From the Project-SOL folder:
+
+  cd files
+  pip install -e "."
+
+This installs SOL's core. For voice support:
+
+  On Mac:
+    brew install portaudio
+    pip install vosk sounddevice numpy
+
+  On Linux (Ubuntu/Debian):
+    sudo apt install portaudio19-dev
+    pip install vosk sounddevice numpy
+
+Don't have Homebrew? Get it at: https://brew.sh
+
+
+==============================================================
+STEP 5: DOWNLOAD THE SPEECH MODEL (for voice input)
+==============================================================
+
+SOL needs a small speech model to understand you (~50MB).
+
+  cd files/models
+  curl -LO https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip
+  unzip vosk-model-small-en-us-0.15.zip
+  rm vosk-model-small-en-us-0.15.zip
+
+If you don't have curl, download the zip manually from:
+  https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip
+and unzip it into the files/models/ folder.
+
+
+==============================================================
+STEP 6: SET UP AN AI BRAIN (pick one or both)
+==============================================================
+
+SOL can think with a cloud AI, a local AI, or both.
+Without either, SOL still works but uses basic pattern matching.
+
+--- OPTION A: Google Gemini (cloud, FREE) ---
+
+  This gives SOL the best brain. No credit card needed.
+
+  1. Go to: https://aistudio.google.com
+  2. Sign in with your Google account
+  3. Click "Get API Key" and create one
+  4. Create a file called .env in the files/ folder:
+
+       cd files
+       echo "GEMINI_API_KEY=paste-your-key-here" > .env
+
+  That's it. SOL will use Gemini automatically when online.
+
+--- OPTION B: Ollama (local, works offline) ---
+
+  This runs AI on your own computer. No internet needed.
+
+  1. Download Ollama from: https://ollama.com
+  2. Install it (drag to Applications on Mac)
+  3. Open Terminal and pull a model:
+
+       ollama pull gemma3:4b
+
+     This downloads ~3.3GB. Wait for it to finish.
+
+  4. SOL will detect Ollama automatically.
+
+--- BOTH TOGETHER (recommended) ---
+
+  Set up both. SOL uses Gemini when you're online and
+  automatically falls back to Ollama when you're offline.
+
+
+==============================================================
+STEP 7: RUN SOL
+==============================================================
+
+  cd files
+  python3 sol.py
+
+You should see something like:
+
+    Brain: Gemini cloud (gemini-2.5-flash)
+    Voice input: Vosk (ready)
+    Push-to-talk: ON (press SPACE to speak)
+    Voice output: macOS say (Daniel)
+
+SOL will greet you. Start talking!
+
+
+==============================================================
+HOW TO USE SOL
+==============================================================
+
+TALKING TO SOL:
+  - Press SPACE (or ENTER) to start talking
+  - Speak naturally — SOL stops recording when you pause
+  - SOL responds out loud in a British accent and shows text
+  - Or just type and press Enter if you prefer keyboard
+
+THINGS TO TRY:
+  - "My name is [your name]"    — SOL remembers you
+  - "What do you think about X" — SOL gives honest opinions
+  - "Tell me a joke"            — SOL has a sense of humor
+  - "Let's journal"             — Guided daily reflection
+  - "Remind me to X tomorrow"   — Sets a reminder
+  - "What do you remember?"     — SOL recalls what you've told it
+
+QUITTING:
+  - Say "goodbye" for a graceful exit (SOL saves your session)
+  - Press Ctrl+C to quit immediately (still saves memory)
+
+
+==============================================================
+TROUBLESHOOTING
+==============================================================
+
+PROBLEM: "Brain: pattern matching mode"
+  SOL has no AI backend. Set up Gemini or Ollama (Step 6).
+
+PROBLEM: "No voice input available"
+  Voice packages aren't installed. Run:
+    brew install portaudio
+    pip install vosk sounddevice numpy
+  Then download the Vosk model (Step 5).
+
+PROBLEM: "No voice output available"
+  On Mac this shouldn't happen — the "say" command is built in.
+  On Linux: pip install pyttsx3
+
+PROBLEM: install.sh won't run
+  Make sure it's executable:
+    chmod +x install.sh
+    bash install.sh
+
+PROBLEM: "Permission denied" errors
+  Try adding "sudo" before the command, or use:
+    pip install --user -e "."
+
+PROBLEM: Python not found
+  Make sure you installed Python 3.9+ (Step 1).
+  Try "python3" instead of "python".
+
+PROBLEM: Ollama model is slow
+  First run downloads the model. After that it's faster.
+  On Mac, Ollama uses Metal GPU acceleration automatically.
+
+
+==============================================================
+FILE LAYOUT
+==============================================================
+
+Project-SOL/
+  SETUP GUIDE.txt        <-- You are here
+  files/
+    sol.py               <-- Run this to start SOL
+    install.sh           <-- Run this first to set everything up
+    sol.toml             <-- Configuration (optional tweaks)
+    .env                 <-- Your API keys (create this)
+    src/sol/             <-- SOL's code
+    tests/               <-- 134 tests
+    models/              <-- Speech models go here
+    plugins/             <-- Custom plugins go here
+
+
+==============================================================
+QUESTIONS?
+==============================================================
+
+GitHub: https://github.com/treyj333/Project-SOL
+Open an issue if something doesn't work.

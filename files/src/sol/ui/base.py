@@ -13,7 +13,7 @@ class UIBase(ABC):
         ...
 
     @abstractmethod
-    def display_banner(self) -> None:
+    def display_banner(self, brain_name: str = "") -> None:
         """Display SOL's startup banner."""
         ...
 

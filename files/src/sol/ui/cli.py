@@ -52,7 +52,7 @@ class CliUI(UIBase):
 
             print()
 
-    def display_banner(self) -> None:
+    def display_banner(self, brain_name: str = "") -> None:
         self.clear()
         banner = f"""
 {C.GREEN}{C.BOLD}
@@ -63,13 +63,17 @@ class CliUI(UIBase):
     ███████║╚██████╔╝███████╗
     ╚══════╝ ╚═════╝ ╚══════╝{C.RESET}
 
-    {C.AMBER}╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌{C.RESET}
-    {C.DIM}  LOCAL AI FRIEND • v2.0{C.RESET}
-    {C.DIM}  No internet. No cloud.{C.RESET}
-    {C.DIM}  Just SOL and you.{C.RESET}
-    {C.AMBER}╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌{C.RESET}
+    {C.AMBER}╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌{C.RESET}
+    {C.DIM}  YOUR AI COMPANION • v2.2{C.RESET}
+    {C.DIM}  Smart. Sarcastic. British.{C.RESET}
+    {C.AMBER}╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌{C.RESET}
 """
         print(banner)
+
+        if brain_name:
+            print(f"    {C.GREEN}Brain:{C.RESET} {C.WHITE}{brain_name}{C.RESET}")
+            print(f"    {C.GRAY}Say \"change model\" to switch AI backends{C.RESET}")
+            print()
 
     def display_status(self, metadata: Dict[str, Any]) -> None:
         name = metadata.get("friend_name", "???")
