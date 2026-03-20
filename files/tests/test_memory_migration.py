@@ -19,7 +19,7 @@ class TestMigration:
         db_path = str(tmp_path / "sol_memory.db")
         maybe_migrate(sample_json_file, db_path)
         store = SqliteMemoryStore(db_path)
-        assert store.get_friend_name() == "Marvin"
+        assert store.get_friend_name() == "Alex"
         store.close()
 
     def test_migration_preserves_facts(self, sample_json_file, tmp_path):

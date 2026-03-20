@@ -115,10 +115,10 @@ class TestOllamaBrainMemory:
     @patch("urllib.request.urlopen")
     def test_extracts_name(self, mock_open, brain, memory_db):
         mock_open.return_value = _mock_urlopen({
-            "message": {"content": "SOL happy to know Marvin!"}
+            "message": {"content": "SOL happy to know Alex!"}
         })
-        brain.think("my name is Marvin")
-        assert memory_db.get_friend_name() == "Marvin"
+        brain.think("my name is Alex")
+        assert memory_db.get_friend_name() == "Alex"
 
     @patch("urllib.request.urlopen")
     def test_extracts_preference(self, mock_open, brain, memory_db):

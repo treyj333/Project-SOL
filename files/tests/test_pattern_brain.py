@@ -16,9 +16,9 @@ class TestPatternBrain:
         assert response  # Should return something
 
     def test_name_extraction_my_name_is(self, pattern_brain):
-        response = pattern_brain.think("my name is Marvin")
-        assert "Marvin" in response
-        assert pattern_brain.memory.get_friend_name() == "Marvin"
+        response = pattern_brain.think("my name is Alex")
+        assert "Alex" in response
+        assert pattern_brain.memory.get_friend_name() == "Alex"
 
     def test_name_extraction_im(self, pattern_brain):
         response = pattern_brain.think("i'm Alice")
@@ -76,10 +76,10 @@ class TestPatternBrain:
         assert "nothing" in response.lower() or "mystery" in response.lower()
 
     def test_recall_with_facts(self, pattern_brain):
-        pattern_brain.memory.set_friend_name("Marvin")
+        pattern_brain.memory.set_friend_name("Alex")
         pattern_brain.memory.add_fact("I am a programmer")
         response = pattern_brain.think("what do you remember about me")
-        assert "Marvin" in response
+        assert "Alex" in response
         assert "programmer" in response.lower()
 
     def test_joke(self, pattern_brain):

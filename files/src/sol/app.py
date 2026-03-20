@@ -409,16 +409,31 @@ class SolApp:
 
         choice = choice_text.lower().strip()
 
-        # Match by number
-        for i, (key, label) in enumerate(available, 1):
-            if choice == str(i) or choice in ("one", "two", "three", "four")[i-1:i]:
-                if label == self.brain_name:
-                    return f"Already running {label}. No change needed."
-                if self._switch_brain(key):
-                    return f"Done. Switched to {self.brain_name}. Let's see if I'm smarter now."
-                return f"Couldn't switch to {label}. Something went wrong."
+        # Word-to-number mapping (handles "two", "number two", "the second one", etc.)
+        word_to_num = {
+            "1": 1, "one": 1, "first": 1, "1st": 1,
+            "2": 2, "two": 2, "to": 2, "too": 2, "second": 2, "2nd": 2,
+            "3": 3, "three": 3, "third": 3, "3rd": 3,
+            "4": 4, "four": 4, "for": 4, "fourth": 4, "4th": 4,
+            "5": 5, "five": 5, "fifth": 5, "5th": 5,
+        }
 
-        # Match by keyword
+        # Extract a number from the choice text
+        picked = None
+        for word in choice.split():
+            if word in word_to_num:
+                picked = word_to_num[word]
+                break
+
+        if picked and 1 <= picked <= len(available):
+            key, label = available[picked - 1]
+            if label == self.brain_name:
+                return f"Already running {label}. No change needed."
+            if self._switch_brain(key):
+                return f"Done. Switched to {self.brain_name}. Let's see if I'm smarter now."
+            return f"Couldn't switch to {label}. Something went wrong."
+
+        # Match by keyword (gemini, ollama, local, pattern, etc.)
         for key, label in available:
             if key in choice or any(w in choice for w in label.lower().split()):
                 if label == self.brain_name:

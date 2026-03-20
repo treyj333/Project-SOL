@@ -31,7 +31,7 @@ def json_memory(tmp_path):
 def sample_json_file(tmp_path):
     """Create a sample sol_memory.json for migration tests."""
     data = {
-        "friend_name": "Marvin",
+        "friend_name": "Alex",
         "facts": ["I am a programmer", "I live in california"],
         "preferences": ["coffee", "NOT loud music"],
         "conversations": 15,

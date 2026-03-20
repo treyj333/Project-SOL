@@ -1,1 +1,19 @@
+# macOS
 .DS_Store
+
+# Secrets & credentials
+.env
+*.env
+
+# Databases
+*.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+
+# Models (large binary files)
+files/models/

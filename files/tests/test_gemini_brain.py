@@ -149,11 +149,11 @@ class TestGeminiBrainMemory:
     def test_extracts_name(self, mock_open, brain, memory_db):
         mock_open.return_value = _mock_urlopen({
             "candidates": [{
-                "content": {"parts": [{"text": "Nice to meet you, Marvin!"}]}
+                "content": {"parts": [{"text": "Nice to meet you, Alex!"}]}
             }]
         })
-        brain.think("my name is Marvin")
-        assert memory_db.get_friend_name() == "Marvin"
+        brain.think("my name is Alex")
+        assert memory_db.get_friend_name() == "Alex"
 
     @patch("urllib.request.urlopen")
     def test_extracts_preference(self, mock_open, brain, memory_db):

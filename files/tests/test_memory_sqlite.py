@@ -8,8 +8,8 @@ class TestSqliteMemoryStore:
 
     def test_friend_name(self, memory_db):
         assert memory_db.get_friend_name() is None
-        memory_db.set_friend_name("Marvin")
-        assert memory_db.get_friend_name() == "Marvin"
+        memory_db.set_friend_name("Alex")
+        assert memory_db.get_friend_name() == "Alex"
 
     def test_add_and_get_facts(self, memory_db):
         memory_db.add_fact("I am a programmer")
@@ -78,13 +78,13 @@ class TestSqliteMemoryStore:
         assert memory_db.get_last_talked() == "2026-03-20T15:00:00"
 
     def test_metadata(self, memory_db):
-        memory_db.set_friend_name("Marvin")
+        memory_db.set_friend_name("Alex")
         memory_db.add_fact("test fact")
         memory_db.add_preference("coffee", "like")
         memory_db.increment_conversations()
 
         meta = memory_db.get_metadata()
-        assert meta["friend_name"] == "Marvin"
+        assert meta["friend_name"] == "Alex"
         assert meta["facts_count"] == 1
         assert meta["prefs_count"] == 1
         assert meta["conversations"] == 1
