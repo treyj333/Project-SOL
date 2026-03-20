@@ -31,7 +31,7 @@ def get_journal_prompt(question_index: int) -> Optional[str]:
     """Get the next journal follow-up question."""
     if question_index < len(JOURNAL_QUESTIONS):
         question = JOURNAL_QUESTIONS[question_index]
-        return f"SOL want to know: {question}"
+        return f"SOL wants to know: {question}"
     return None
 
 

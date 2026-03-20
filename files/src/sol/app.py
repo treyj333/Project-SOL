@@ -490,6 +490,26 @@ class SolApp:
                     print()
                     continue
 
+                # Check for help command (exact matches only to avoid catching "help me with...")
+                if lower in ("help", "commands", "?") or lower in (
+                    "what can you do", "what do you do", "show commands",
+                ):
+                    help_text = (
+                        "Here's what I can do:\n"
+                        "\n"
+                        "  Talk to me    — just type naturally, I'll remember things\n"
+                        "  Change model  — say 'change model' to switch AI backends\n"
+                        "  Journal       — say 'let's journal' for a guided reflection\n"
+                        "  Reminders     — say 'remind me to...' and I'll track it\n"
+                        "  Notes         — say 'note:' followed by anything to save it\n"
+                        "  Voice         — press SPACE to talk (if voice is set up)\n"
+                        "  Exit          — say 'goodbye', 'bye', 'see ya', or hit Ctrl+C"
+                    )
+                    self.ui.display_message(help_text, "sol")
+                    self.speak("I can chat, journal, take notes, set reminders, and switch AI models. Just ask.")
+                    print()
+                    continue
+
                 # Run plugin on_user_input hooks
                 plugin_override = None
                 for plugin in self.plugins:
@@ -505,6 +525,8 @@ class SolApp:
                 if plugin_override is not None:
                     response = plugin_override
                 else:
+                    if not isinstance(self.brain, PatternBrain):
+                        self.ui.display_message("[ thinking... ]", "dim")
                     response = self.brain.think(user_text)
 
                 # Run plugin on_response hooks

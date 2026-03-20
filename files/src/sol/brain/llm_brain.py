@@ -129,7 +129,7 @@ class LLMBrain(BaseBrain):
             return reply
 
         except Exception as e:
-            return f"SOL brain hurt. Error. SOL try again? ({e})"
+            return "Hit a wall on that one. Try again?"
 
     def _process_memory_operations(self, text: str):
         """Extract and store memory items from user input."""

@@ -195,9 +195,9 @@ class GeminiBrain(BaseBrain):
             return "Drew a blank on that one. Try again?"
 
         except urllib.error.URLError:
-            return "Lost my internet connection. You might want to restart — I'll fall back to local mode."
+            return "Lost my internet connection. Say 'change model' to switch to a local brain."
         except Exception as e:
-            return "Hit a snag with the cloud API. ({})".format(e)
+            return "Hit a snag with the cloud API. Try again in a bit."
 
     def _process_memory_operations(self, text: str):
         """Extract and store memory items from user input."""

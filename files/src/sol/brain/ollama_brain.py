@@ -154,7 +154,7 @@ class OllamaBrain(BaseBrain):
         except urllib.error.URLError:
             return "Can't reach the Ollama server — is it running?"
         except Exception as e:
-            return "Hit a snag processing that. ({})".format(e)
+            return "Hit a snag processing that. Try again?"
 
     def _process_memory_operations(self, text: str):
         """Extract and store memory items from user input."""

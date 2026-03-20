@@ -293,6 +293,7 @@ SOL is the friend who's brilliantly sarcastic but always has your back:
 
 | Command | What It Does |
 |---------|-------------|
+| "help" or "?" | Show available commands and features |
 | "change model" | Switch AI backends (Gemini, Ollama, etc.) |
 | "switch brain" | Same as above |
 | "switch AI" | Same as above |
@@ -325,6 +326,7 @@ Project-SOL/
     install.sh                # One-line installer
     sol.toml                  # Configuration
     .env                      # API keys (gitignored)
+    .env.example              # Template for required env vars
     pyproject.toml            # Package metadata
     src/sol/                  # Main package
       app.py                  # Application orchestrator
