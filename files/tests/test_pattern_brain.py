@@ -73,7 +73,7 @@ class TestPatternBrain:
 
     def test_recall_empty_memory(self, pattern_brain):
         response = pattern_brain.think("what do you remember")
-        assert "don't know much" in response.lower() or "tell me" in response.lower()
+        assert "nothing" in response.lower() or "mystery" in response.lower()
 
     def test_recall_with_facts(self, pattern_brain):
         pattern_brain.memory.set_friend_name("Marvin")

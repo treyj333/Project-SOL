@@ -172,6 +172,19 @@ class SolApp:
             except ImportError:
                 pass
 
+        # Try macOS native say
+        if tts in ("mac_say", "auto"):
+            try:
+                from sol.voice.mac_say_tts import MacSayTTS
+                voice = get(self.config, "voice.mac_voice", "Daniel")
+                rate = get(self.config, "voice.speech_rate", 180)
+                engine = MacSayTTS(voice=voice, rate=rate)
+                if engine.is_available():
+                    self.ui.display_message(f"Voice output: macOS say ({voice})", "system")
+                    return engine
+            except ImportError:
+                pass
+
         # Try pyttsx3
         if tts in ("pyttsx3", "auto"):
             try:

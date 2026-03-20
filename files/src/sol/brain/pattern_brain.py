@@ -53,7 +53,7 @@ class PatternBrain(BaseBrain):
             if name:
                 self.memory.set_friend_name(name)
                 self.memory.set_first_met(datetime.datetime.now().isoformat())
-                return f"{name} — got it. Good to meet you. So what's on your mind?"
+                return f"{name}. Got it. I'll try not to forget — unlike you humans, I actually have a reliable memory. So what's going on?"
 
         # Emotional detection
         if any(w in text for w in SAD_WORDS):
@@ -71,18 +71,18 @@ class PatternBrain(BaseBrain):
             if fact not in existing:
                 self.memory.add_fact(fact)
                 name = self.memory.get_friend_name() or "Friend"
-                return f"Noted — {fact}. Tell me more about that?"
+                return f"Filed away: {fact}. My brain is basically a filing cabinet at this point. Keep going."
 
         # Questions about SOL
         if "who are you" in text or "what are you" in text:
-            return "I'm SOL — an AI that lives on your computer. I remember our conversations, I learn about you over time, and I try to actually be useful. Still growing, but I'm getting there."
+            return "I'm SOL. I live rent-free on your computer, I remember everything you tell me, and I have opinions about all of it. Think of me as the friend who's always honest — sometimes brutally so."
 
         if "how are you" in text or "how do you feel" in text:
             ctx_len = len(self.context)
             if ctx_len < 3:
-                return "Doing well — just warming up. What's going on with you?"
+                return "Honestly? I just woke up, so I'm still buffering. But I'm here. What's up?"
             else:
-                return f"I'm good. We've been talking for a bit now and I feel like I'm getting a better read on things."
+                return f"I'm thriving. We've been going for a bit now and I'm starting to figure you out. Should that worry you?"
 
         # Recall memory
         if any(w in text for w in ["remember", "do you know", "what do you know", "tell me about me"]):
@@ -93,24 +93,24 @@ class PatternBrain(BaseBrain):
             pref = self._extract_preference(text)
             if pref:
                 self.memory.add_preference(pref, "like")
-                return f"Got it — you're into {pref}. I'll remember that."
+                return f"{pref}, huh? Interesting choice. No judgment. Okay, a little judgment. But I'll remember it."
 
         # Dislikes
         if "i don't like" in text or "i hate" in text or "i dislike" in text:
             pref = self._extract_dislike(text)
             if pref:
                 self.memory.add_preference(pref, "dislike")
-                return f"Understood — not a fan of {pref}. Noted."
+                return f"Hard pass on {pref}. Respect. I've added it to the permanent record."
 
         # Time questions
         if "what time" in text or "what day" in text:
             now = datetime.datetime.now()
-            return f"It's {now.strftime('%A')}, {now.strftime('%I:%M %p')}."
+            return f"It's {now.strftime('%A')}, {now.strftime('%I:%M %p')}. You know you have a clock on your screen, right?"
 
         # Thank you
         if "thank" in text:
             name = self.memory.get_friend_name() or "Friend"
-            return f"Happy to help, {name}. That's what I'm here for."
+            return f"Don't mention it, {name}. Seriously though, I live for this stuff. Literally. It's all I do."
 
         # How long known
         if "how long" in text and ("know" in text or "friends" in text or "met" in text):
@@ -119,12 +119,12 @@ class PatternBrain(BaseBrain):
                 first = datetime.datetime.fromisoformat(first_met)
                 days = (datetime.datetime.now() - first).days
                 if days == 0:
-                    return "We just met today! But I'm already learning a lot about you."
+                    return "We literally just met. Give it time — I'll know you better than you know yourself soon enough."
                 elif days == 1:
-                    return "One day in. Still early, but I remember everything from yesterday."
+                    return "One whole day. We're practically old friends. I remember everything from yesterday, by the way."
                 else:
-                    return f"It's been {days} days. I've been keeping track of everything we've talked about."
-            return "I'm not sure exactly, but it doesn't matter — we're here now."
+                    return f"{days} days. I've been silently cataloging everything you've told me. Not creepy at all."
+            return "Honestly? I've lost track. But I remember everything we've talked about, so does it matter?"
 
         # Jokes
         if "joke" in text or "funny" in text or "laugh" in text:
@@ -198,8 +198,8 @@ class PatternBrain(BaseBrain):
         if convos > 0:
             parts.append(f"We've had {convos} conversations so far.")
         if not parts:
-            return "I don't know much about you yet. Tell me something — I'll remember it."
-        parts.append("I pick up more every time we talk.")
+            return "I've got nothing on you. You're a mystery. Which is either cool or means you don't talk to me enough."
+        parts.append("And that's just what I've collected so far. Keep talking.")
         return "\n".join(parts)
 
     def _contextual_response(self, text: str) -> str:
@@ -208,24 +208,24 @@ class PatternBrain(BaseBrain):
 
         if ctx_size <= 2:
             return random.choice([
-                f"I'm listening. Keep going, {name}.",
-                "Interesting — tell me more about that.",
-                f"Got it. What else is on your mind, {name}?",
+                f"Go on. I'm all ears. Well, all code. But you get the idea.",
+                "Okay, you've got my attention. Keep going.",
+                f"Interesting. And by interesting I mean I genuinely want to hear more, {name}.",
             ])
 
         if ctx_size <= 6:
             return random.choice([
-                f"I'm piecing things together from what you've been saying. Go on.",
-                f"That connects to something you said earlier. I'm tracking, {name}.",
-                f"I hear you. What's the thing that matters most about this?",
-                f"Okay, I think I see where you're going with this.",
+                f"I'm connecting some dots here. This is getting good.",
+                f"Wait, that ties into what you said earlier. I'm onto something, {name}.",
+                f"Alright, real talk — what's the actual thing you're trying to figure out here?",
+                f"Okay I see you. Keep going — I'm building a profile and it's fascinating.",
             ])
 
         topics = self.memory.get_topics(limit=3)
-        topic_mention = f" We've covered {', '.join(topics)} today." if topics else ""
+        topic_mention = f" We've hit {', '.join(topics)} so far." if topics else ""
         return random.choice([
-            f"Good conversation today.{topic_mention} What else?",
-            f"I feel like I'm getting a better picture of how you think.{topic_mention}",
-            f"We've covered a lot of ground, {name}.{topic_mention} Anything else?",
-            f"I'm learning a lot from this conversation. Keep going.",
+            f"This has been a solid conversation.{topic_mention} Hit me with more.",
+            f"I'm starting to understand how your brain works, {name}.{topic_mention} It's... something.",
+            f"We've covered a lot today.{topic_mention} I'm basically your biographer at this point.",
+            f"Keep going. Every conversation makes me slightly more dangerous.",
         ])
